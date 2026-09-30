@@ -1,0 +1,9 @@
+build/
+*.o
+*.log
+*.tmp
+.ra_token
+.ra_user
+ra.cfg
+RGDSPlus-RA-*.zip
+RGDSPlus-RA-*.tar.gz
