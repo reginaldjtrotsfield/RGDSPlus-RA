@@ -4,13 +4,13 @@ RetroAchievements integration for the stock Nintendo DS emulator included with t
 
 RGDSPlus-RA does **not** replace the Nintendo DS emulator. It is an `LD_PRELOAD` runtime integration layer around the existing NNDDSS / DraStic-based frontend.
 
-## v0.1.0 status
+## Status: Casual Mode only
 
-This is the first public preview release.
+RGDSPlus-RA is currently intended for RetroAchievements **Casual Mode only**.
 
-**RGDSPlus-RA is not currently approved for RetroAchievements Hardcore.**
+Experimental Hardcore support has been implemented, but it is **not approved by RetroAchievements** and should not be used for official Hardcore achievements or leaderboards.
 
-For that reason, v0.1.0 deliberately runs rcheevos in **spectator mode**. Achievements are evaluated locally, but achievement and leaderboard submissions are intentionally disabled while the integration is undergoing public testing and RetroAchievements review.
+The initial v0.1.0 public preview runs in spectator mode, so it evaluates achievements locally without submitting unlocks or leaderboard scores. A Casual-only release with submissions enabled is being prepared.
 
 ## Features
 
@@ -25,12 +25,8 @@ For that reason, v0.1.0 deliberately runs rcheevos in **spectator mode**. Achiev
 - Progress Indicators
 - Asynchronous RetroAchievements networking
 - Persistent RetroAchievements settings
-- Local Hardcore-mode support
-- Hardcore load-state protection
-- Hardcore cheat protection
-- Startup protection against previously enabled cheats
-- Save-state creation remains available
-- Fast-forward remains available
+
+Experimental Hardcore-related development is documented separately in `docs/HARDCORE_STATUS.md`.
 
 ## Hardcore protections
 
