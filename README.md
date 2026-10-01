@@ -4,13 +4,13 @@ RetroAchievements integration for the stock Nintendo DS emulator included with t
 
 RGDSPlus-RA does **not** replace the Nintendo DS emulator. It is an `LD_PRELOAD` runtime integration layer around the existing NNDDSS / DraStic-based frontend.
 
-## Status: Casual Mode only
+## Status
 
-RGDSPlus-RA is currently intended for RetroAchievements **Casual Mode only**.
+RGDSPlus-RA includes both Casual and Hardcore modes.
 
-Experimental Hardcore support has been implemented, but it is **not approved by RetroAchievements** and should not be used for official Hardcore achievements or leaderboards.
+Hardcore support is implemented and available, but RGDSPlus-RA is **not yet approved by RetroAchievements for Hardcore**.
 
-The initial v0.1.0 public preview runs in spectator mode, so it evaluates achievements locally without submitting unlocks or leaderboard scores. A Casual-only release with submissions enabled is being prepared.
+v0.1.1 disables spectator mode and enables normal achievement submissions. Until RGDSPlus-RA is added to RetroAchievements' accepted emulator list, enabling Hardcore will produce the expected **Unknown Emulator** warning and achievements will be credited as Softcore.
 
 ## Features
 
@@ -26,7 +26,7 @@ The initial v0.1.0 public preview runs in spectator mode, so it evaluates achiev
 - Asynchronous RetroAchievements networking
 - Persistent RetroAchievements settings
 
-Experimental Hardcore-related development is documented separately in `docs/HARDCORE_STATUS.md`.
+Hardcore implementation details and approval status are documented in `docs/HARDCORE_STATUS.md`.
 
 ## Hardcore protections
 
@@ -44,8 +44,75 @@ No rewind, slowdown, or frame-advance functionality was found in this frontend d
 ## Client identity
 
 ```text
-RGDSPlus-RA/0.1.0 rcheevos/12.5
+RGDSPlus-RA/0.1.1 rcheevos/12.5
 ```
+
+## Installation
+
+1. Download `RGDSPlus-RA-v0.1.1.zip` from the [Releases](../../releases) page.
+
+2. Extract the contents of the ZIP directly into the `Roms/APPS` folder on the SD card that contains your ROMs:
+
+   ```text
+   Roms/APPS
+   ```
+
+   After extracting, the folder should contain:
+
+   ```text
+   Roms/APPS/
+   ├── RGDSPlus-RA-Install.sh
+   ├── RGDSPlus-RA-Uninstall.sh
+   └── RGDSPlus-RA/
+       ├── libra_live.so
+       ├── libra_popup.so
+       └── libra_settings.so
+   ```
+
+3. Insert the SD card into the RG DS Plus and boot normally.
+
+4. Open:
+
+   **Applications → Apps**
+
+5. Run:
+
+   ```text
+   RGDSPlus-RA-Install.sh
+   ```
+
+   The system will briefly display **Now Loading** and then return to the Applications menu.
+
+6. Launch a Nintendo DS game normally.
+
+7. Open the RetroAchievements menu.
+
+   If you are not already signed in, select **Sign In** and enter your RetroAchievements username and password.
+
+   Your login will be saved automatically for future launches and preserved if RGDSPlus-RA is uninstalled and reinstalled.
+
+That's it.
+
+## Uninstall
+
+To remove RGDSPlus-RA:
+
+1. Open **Applications → Apps**.
+2. Run:
+
+   ```text
+   RGDSPlus-RA-Uninstall.sh
+   ```
+
+3. The stock Nintendo DS emulator will be restored automatically.
+
+Your RetroAchievements login and RGDSPlus-RA settings are preserved so you can reinstall later without signing in again.
+
+## Hardcore status
+
+Hardcore Mode is implemented and its restrictions are enforced locally.
+
+RGDSPlus-RA is not yet approved for official RetroAchievements Hardcore credit. Until approval, enabling Hardcore will produce the expected **Unknown Emulator** warning and achievements will be credited as Softcore.
 
 ## Compatibility
 

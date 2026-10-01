@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.1.1
+
+Public test release.
+
+- simplified SD-card Apps installation flow
+- install and uninstall scripts for Applications → Apps
+- installer no longer forces a reboot
+- preserved RetroAchievements login and settings across reinstallations
+- normal achievement submissions enabled
+- spectator mode disabled
+- Hardcore implementation documented and prepared for RetroAchievements verification
+- unique client identity `RGDSPlus-RA/0.1.1 rcheevos/12.5`
+
 ## v0.1.0
 
 Initial public preview.

@@ -1084,7 +1084,58 @@ static int ra_generate_game_hash(
 }
 
 
+#define RA_USER_FILE "/mnt/vendor/deep/nnddss/.ra_user"
 
+static int ra_save_username(const char *username)
+{
+    int fd;
+    size_t len;
+    size_t off = 0;
+
+    if (!username || !username[0])
+        return 0;
+
+    fd = open(
+        RA_USER_FILE,
+        O_WRONLY | O_CREAT | O_TRUNC,
+        0600);
+
+    if (fd < 0) {
+        perror("[RA] username file open");
+        return 0;
+    }
+
+    if (fchmod(fd, 0600) != 0)
+        perror("[RA] username file chmod");
+
+    len = strlen(username);
+
+    while (off < len) {
+        ssize_t written =
+            write(
+                fd,
+                username + off,
+                len - off);
+
+        if (written <= 0) {
+            perror("[RA] username file write");
+            close(fd);
+            return 0;
+        }
+
+        off += (size_t)written;
+    }
+
+    fsync(fd);
+    close(fd);
+
+    fprintf(
+        stderr,
+        "[RA] username saved to %s\n",
+        RA_USER_FILE);
+
+    return 1;
+}
 #define RA_TOKEN_FILE "/mnt/vendor/deep/nnddss/.ra_token"
 
 static rc_client_callback_t g_ra_real_login_callback;
@@ -2440,7 +2491,7 @@ static void ra_server_call(
     snprintf(
         sync_job.user_agent,
         sizeof(sync_job.user_agent),
-        "RGDSPlus-RA/0.1.0 %s",
+        "RGDSPlus-RA/0.1.1 %s",
         clause);
 
     fprintf(
@@ -3772,6 +3823,24 @@ int ra_account_login(
 
         return 0;
     }
+if (!ra_save_username(
+        username)) {
+
+    pthread_mutex_unlock(
+        &g_ra_client_lock);
+
+    if (error_buffer &&
+        error_buffer_size) {
+
+        snprintf(
+            error_buffer,
+            error_buffer_size,
+            "%s",
+            "Could not save username");
+    }
+
+    return 0;
+}
 
     if (!ra_save_token(
             user->token)) {
@@ -4923,7 +4992,7 @@ static int ra_hardcore_install_cheat_guard(void)
  * By +0xAB9C both values are live and stable.
  *
  * This stage is READ ONLY. It does not disable or otherwise mutate
- * any cheat state. Spectator mode remains enabled.
+ * any cheat state. Historical proof stage used spectator mode.
  */
 #define RA_EARLY_CHEAT_PROBE_CALL_RVA 0x0000AB9CUL
 #define RA_EARLY_CHEAT_PROBE_EXPECTED 0x94007879U
@@ -5418,7 +5487,7 @@ static int ra_hardcore_install_early_cheat_probe(void)
 /* ========================================================================= */
 /* Stage 7H.7J - signalScreen cheat-population timing probe                  */
 /*                                                                           */
-/* PROOF BUILD. Clears persisted enabled bits only in Hardcore. Spectator remains enabled.                  */
+/* PROOF BUILD. Clears persisted enabled bits only in Hardcore. Historical proof stage used spectator mode.                  */
 /*                                                                           */
 /* Startup sequence:                                                         */
 /*                                                                           */
@@ -5912,7 +5981,7 @@ ra_hardcore_install_7h7j_signalscreen_probe(void)
 /* ========================================================================= */
 /* Stage 7H.7N - pre-finalizer Hardcore persisted-cheat purge proof                  */
 /*                                                                           */
-/* PROOF BUILD. Clears persisted enabled bits only in Hardcore. Spectator remains enabled.                  */
+/* PROOF BUILD. Clears persisted enabled bits only in Hardcore. Historical proof stage used spectator mode.                  */
 /*                                                                           */
 /* libnnddss.so startup loader path:                                         */
 /*                                                                           */
@@ -7134,15 +7203,12 @@ static void *ra_worker(void *unused)
         hash = auto_hash;
     }
 
-    if (!username || !*username) {
-        fprintf(stderr,
-                "[RA] RA_USER is not set - RA disabled\n");
-        return NULL;
-    }
-
     start_signed_out =
-        ((!token || !*token) &&
-         (!password || !*password));
+        (!username ||
+         !*username ||
+         ((!token || !*token) &&
+          (!password || !*password)));
+
 
     if (start_signed_out) {
         fprintf(
@@ -7175,22 +7241,21 @@ static void *ra_worker(void *unused)
         ra_event_handler);
 
     /*
-     * Stage 2 validation runs in spectator mode:
-     * evaluate normally, but do not submit unlocks/leaderboards.
+     * Public v0.1.1 runs with spectator mode disabled:
+     * evaluate normally and allow server submissions.
      */
     /*
      * Stage 7H.3:
      *
      * Hardcore startup proof.
      *
-     * Keep spectator mode enabled until the frontend's Hardcore
-     * restrictions are complete. This allows us to validate the
-     * rcheevos mode without submitting Hardcore unlocks or
-     * leaderboard scores from a non-compliant frontend.
+     * Hardcore support is implemented locally; server-side
+     * approval determines whether Hardcore credit is granted.
+     * Normal submissions remain enabled.
      */
     rc_client_set_spectator_mode_enabled(
         g_client,
-        1);
+        0);
 
     /*
      * Stage 7H.6:
@@ -7220,8 +7285,8 @@ static void *ra_worker(void *unused)
 
     fprintf(
         stderr,
-        "[RA 7H7S] spectator mode enabled; "
-        "achievement submissions are blocked during identity research\n");
+        "[RA v0.1.1] submissions enabled; "
+        "achievement submissions are enabled\n");
 
 
     /*
@@ -7504,7 +7569,7 @@ static void *ra_worker(void *unused)
         stderr,
         "[RA] STAGE 2B READY - "
         "FRAME PROCESSING ACTIVE "
-        "(HARDCORE PROOF / SPECTATOR)\n");
+        "(PUBLIC MODE)\n");
 
 ra_persistent_lifecycle:
     ;
@@ -7951,7 +8016,7 @@ void *dlmopen(
  * Proof behavior:
  *
  *   - rcheevos Hardcore enabled before game load
- *   - spectator mode enabled so nothing Hardcore is submitted
+ *   - spectator mode disabled; server decides Hardcore eligibility
  *   - read-only ra_hardcore_is_enabled() bridge exported
  *   - RC_CLIENT_EVENT_RESET logged but deliberately not serviced
  *
@@ -7967,7 +8032,7 @@ void *dlmopen(
  * Proof behavior:
  *
  *   - preserves successful 7H.3 Hardcore startup
- *   - spectator mode remains ON
+ *   - historical proof stage used spectator mode
  *   - patches all three confirmed NNDDSS loadState BLR sites
  *   - Hardcore: loadState requests are blocked
  *   - Softcore: original DraStic loadState is called normally
@@ -7984,7 +8049,7 @@ void *dlmopen(
  *
  *   - preserves 7H.3 Hardcore startup
  *   - preserves 7H.4 load-state protection
- *   - spectator mode remains ON
+ *   - historical proof stage used spectator mode
  *   - patches ui_cheats_frame +0x2ADE8 (blr x8)
  *   - Hardcore + enable request -> forced disabled
  *   - Hardcore + disable request -> allowed
@@ -8005,7 +8070,7 @@ void *dlmopen(
  *   Hardcore actual ON  -> Load State blocked, cheats blocked
  *   Hardcore actual OFF -> Load State allowed, cheats allowed
  *
- * Spectator mode remains ON for this proof.
+ * Historical proof stage used spectator mode.
  */
 /* ========================================================================= */
 
