@@ -12,6 +12,20 @@ Hardcore support is implemented and available, but RGDSPlus-RA is **not yet appr
 
 v0.1.1 disables spectator mode and enables normal achievement submissions. Until RGDSPlus-RA is added to RetroAchievements' accepted emulator list, enabling Hardcore will produce the expected **Unknown Emulator** warning and achievements will be credited as Softcore.
 
+## Screenshots
+
+### RetroAchievements menu
+
+![RetroAchievements menu](docs/screenshots/RA-Menu.png)
+
+### Achievement list
+
+![Achievement list](docs/screenshots/RA-List.png)
+
+### Achievement unlock popup
+
+![Achievement unlock popup](docs/screenshots/RA-Unlock.png)
+
 ## Features
 
 - RetroAchievements login
